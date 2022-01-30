@@ -37,5 +37,5 @@ comp = merged.reindex(columns=['dai','Rotation','BB','RB','difference','date','m
 now = datetime.datetime.now()
 strdate = now.strftime('%m:%d %H:%M:%S')
 comp.to_csv(f'../{strdate}.csv', header=False, index=False)
-
+#test
 quit()
