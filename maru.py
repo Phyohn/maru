@@ -1,4 +1,5 @@
 # maru.py
+#python -i
 import cv2
 import base64
 import numpy as np
@@ -21,7 +22,17 @@ merged = merged.sort_values('dai')
 #case error
 daiser = merged.loc[:,'dai']
 merged.insert(0,'dailist', daiser)
-dailist = pd.read_csv('dailist.txt',names=('dailist','ku'))
+#dailist branch 1864maru 1411nana
+hollna = data['holl'].values[1]
+if hollna == 1864:
+	print ('1864maru')
+	dailist = pd.read_csv('dailistmaru.txt',names=('dailist','ku'))
+elif hollna == 1411:
+	print ('1411nana')
+	dailist = pd.read_csv('dailistnana.txt',names=('dailist','ku'))
+else:
+	print ('error')
+
 merged = pd.merge(dailist, merged, how='outer')
 merged = merged.fillna(0).astype('int64')
 
