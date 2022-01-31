@@ -32,7 +32,29 @@ kisyumei = (ksyu.iloc[:,1]).values.tolist()
 
 merged = merged.replace(model,kisyumei)
 comp = merged.reindex(columns=['dai','Rotation','BB','RB','difference','date','model'])
-#comp = comp.sort_values('dai')
+
+#auto seriesmachine bank
+#pd.Series.unique()
+defdai = comp.loc[:,'model'].unique()
+
+#series to df
+defdaidf = pd.DataFrame(defdai)
+defdaidf.insert(0,'namebank', defdai)
+dainame = pd.read_csv('namebank.csv',names=('namebank','neoname'))
+#drop_duplicates(subset=['namebank']
+dainame = dainame.drop_duplicates(subset=['namebank'])
+newdailist = pd.merge(defdaidf, dainame, how='outer')
+newdailist = newdailist.reindex(columns=['namebank','neoname'])
+newdailist.to_csv('./namebank.csv', header=False, index=False)
+
+
+#namebank.csv to String conversion
+dainame = pd.read_csv('namebank.csv', header=None)
+#tolist
+machinename = (dainame.iloc[:,0]).values.tolist()
+newname = (dainame.iloc[:,1]).values.tolist()
+#replace
+comp = comp.replace(machinename,newname)
 
 now = datetime.datetime.now()
 strdate = now.strftime('%m:%d %H:%M:%S')
