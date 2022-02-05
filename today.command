@@ -1,6 +1,7 @@
 #!/bin/zsh
 cd `dirname $0`
 #Split sentences
+echo -n > new.txt
 cat /Users/mac2018/Applications/Collection/maru/Raw/*.chl* | sed 's/ //g'| sed -e 's/\:443\,\"path\"\:\"\/api\/v1\.7\.4/\n/g' | >new.txt
 
 #loop sentences
@@ -16,7 +17,7 @@ done
 
 #Organize by element
 cat data.txt > tmp.txt
-grep '1864$' tmp.txt | > data.txt
+grep -E '1[0-9]{3}$' tmp.txt | > data.txt
 
 #multislump
 cat new.txt | grep '/machine\/slump\/compare\"\,\"query\"\:\"date' | sed 's/machine_id/\n/g' | grep 'max\\\"\:[1-9]000\,\\\"min\\\"\:-[1-9]000'| tr -d \}\,\{\\\"time\\\"\:\\\" | tr -d \\\"\,\\\"value\\\"\: |sed 's/\\\\\\/,/g' | tr -d \\ | sed -E 's/\[\]/,0/g' | sed 's/\(.*\)x.*\([0-9]\{4\}\)nsbd.*\,\([-0-9]\{1,\}\).*/\3,\1/g' | sed -E 's/([-0-9]{1,}),[^0-9]*([0-9]*)[^0-9]*([0-9]*)[^0-9]*([0-9]*)[^0-9]*([0-9]*).*/\2\3\4\5,\1/g'| tee tmp.txt
@@ -31,56 +32,57 @@ echo $ksyu | sed 's/ /\n/g' | tee ksyu.txt
 
 python maru.py
 
-newcsv=$(ls -1t ../*.csv | head -1) #get only pass
+newcsv=$(ls -1t /Users/mac2018/Applications/Collection/linkdata/*.csv | head -1)    #get only pass
 filename=${newcsv##*/}　#filenameandextention
-fnonly=${filename%.*} #filename
+fnonly=${filename%.*}   #filename
 #Wildcards are disabled by enclosing them in ""
 #Double parentheses for string comparison operations
+#2/1branch nana
+#hollcode pickup grep -m 1 
+hollna=$(cut -f 8 -d "," data.txt |grep -m 1 '[0-9]\{4\}')
 
-store="maruhuku"
+if [ $hollna -eq 1864 ]; then
+	store="maruhuku"
+elif [ $hollna -eq 1411 ]; then
+	store="nana"
+else
+	echo "error"
+fi
+
 fileNum=0
 extension="csv"
 
-if [[ $fnonly = maruhuku* ]]; then
+if [[ $fnonly = maruhuku* ]] || [[ $fnonly = nana* ]]; then
 	echo "Oops! it's error"
 	echo "Cancel and finish"
 else
-	daisuu=($( cut -f 1 -d "," $newcsv |grep '[0-9]\{3,\}'))
-	if [ 314 -eq `echo ${#daisuu[*]}` ]; then
-		echo "OKmaru314"
-		while ls ../*.csv | grep -w $store >/dev/null; do
-			fileNum=`expr $fileNum + 1`
-			store=${store}_${fileNum}
-		done
-		mv $newcsv ../${store}.${extension}
-	else
-		er=($( cut -f 1 -d "," $newcsv))
-		daiban="null"
-		for ((i=1;i<1+`echo ${#er[*]}`;i++))
-			do
-			test $daiban = null && daiban=$er[i]
-			if [ $daiban -eq `echo $(($er[i]))` ]; then
-				echo "ok$er[i]"
-				daiban=$((daiban + 1))
-			elif [ 0 -eq `echo $(($er[i]))` ]; then
-				echo "error$daiban"
-				daiban=`expr 1 + $daiban`
-			else
-				while [ $daiban -ne `echo $(($er[i]))` ]
-					do
-					echo $daiban
-					daiban=`expr 1 + $daiban`
-				done
-			daiban=`expr 1 + $daiban`
+	er=($( cut -f 1 -d "," $newcsv))
+	daiban="null"
+	for ((i=1;i<1+`echo ${#er[*]}`;i++))
+		do
+		test $daiban = null && daiban=$er[i]
+		if [ $daiban -eq `echo $(($er[i]))` ]; then
 			echo "ok$er[i]"
-			fi
-		done
-	fi
-	echo "Missing value"
-	while ls ../*.csv | grep -w $store >/dev/null; do
-		fileNum=`expr $fileNum + 1`
-		store=${store}_${fileNum}
+			daiban=$((daiban + 1))
+		elif [ 0 -eq `echo $(($er[i]))` ]; then
+			echo "error$daiban"
+			daiban=`expr 1 + $daiban`
+		else
+			while [ $daiban -ne `echo $(($er[i]))` ]
+				do
+				echo $daiban
+				daiban=`expr 1 + $daiban`
+			done
+		daiban=`expr 1 + $daiban`
+		echo "ok$er[i]"
+		fi
 	done
-	mv $newcsv ../${store}.${extension}
 fi
+	
+while ls /Users/mac2018/Applications/Collection/linkdata/*.csv | grep -w $store >/dev/null; do
+	fileNum=`expr $fileNum + 1`
+	store=${store}_${fileNum}
+done
+mv $newcsv /Users/mac2018/Applications/Collection/linkdata/${store}.${extension}
+
 print "fin"
