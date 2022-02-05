@@ -32,17 +32,18 @@ echo $ksyu | sed 's/ /\n/g' | tee ksyu.txt
 
 python maru.py
 
-newcsv=$(ls -1t ../*.csv | head -1) #get only pass
+newcsv=$(ls -1t /Users/mac2018/Applications/Collection/linkdata/*.csv | head -1)    #get only pass
 filename=${newcsv##*/}　#filenameandextention
-fnonly=${filename%.*} #filename
+fnonly=${filename%.*}   #filename
 #Wildcards are disabled by enclosing them in ""
 #Double parentheses for string comparison operations
 #2/1branch nana
+#hollcode pickup grep -m 1 
+hollna=$(cut -f 8 -d "," data.txt |grep -m 1 '[0-9]\{4\}')
 
-daisuu=($( cut -f 1 -d "," $newcsv |grep '[0-9]\{3,\}'))
-if [ 314 -eq `echo ${#daisuu[*]}` ]; then
-	#store="maruhuku"
-elif [ 104 -eq `echo ${#daisuu[*]}` ]; then
+if [ $hollna -eq 1864 ]; then
+	store="maruhuku"
+elif [ $hollna -eq 1411 ]; then
 	store="nana"
 else
 	echo "error"
@@ -78,10 +79,10 @@ else
 	done
 fi
 	
-while ls ../*.csv | grep -w $store >/dev/null; do
+while ls /Users/mac2018/Applications/Collection/linkdata/*.csv | grep -w $store >/dev/null; do
 	fileNum=`expr $fileNum + 1`
 	store=${store}_${fileNum}
 done
-mv $newcsv ../${store}.${extension}
+mv $newcsv /Users/mac2018/Applications/Collection/linkdata/${store}.${extension}
 
 print "fin"
