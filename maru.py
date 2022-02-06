@@ -42,7 +42,10 @@ model = (ksyu.iloc[:,0]).values.tolist()
 kisyumei = (ksyu.iloc[:,1]).values.tolist()
 
 merged = merged.replace(model,kisyumei)
-comp = merged.reindex(columns=['dai','Rotation','BB','RB','difference','date','model'])
+#max column plus
+merged['max'] = int(0)
+comp = merged.reindex(columns=['dai','Rotation','BB','RB','difference','max','model','date'])
+comp.dtypes
 
 #auto seriesmachine bank
 #pd.Series.unique()
