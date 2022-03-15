@@ -89,23 +89,38 @@ merged_model_name_df = pd.merge(model_name_df, rename_list_df , how='outer').dro
 sorted_model_df = merged_model_name_df.sort_values('renamed_model_name', na_position='first')
 empty_value = (sorted_model_df['renamed_model_name'].isnull())
 
-while empty_value.sum() > 0 :
+if empty_value.sum() > 0 :
 	csv_stdout(sorted_model_df)
 	new_model_list = (sorted_model_df['model'])[empty_value].tolist()
-	newshortname = input(f"new model arrive. {new_model_list[0]}  (q = quit) Input newname. ")
-	if newshortname == "q" :
-		print("Finish!")
-		quit()
-		brake
-	else:
-		print(f'{new_model_list[0]} is "{newshortname}"')
-		if yes_no_input():
-			(sorted_model_df['renamed_model_name'])[empty_value] = newshortname
-			print("done!")
-			sorted_model_df = sorted_model_df.sort_values('renamed_model_name', na_position='first')
-			empty_value = (sorted_model_df['renamed_model_name'].isnull())
+	renamed_new_model_list = []
+	for new_model in new_model_list:
+		newshortname = input(f"new model arrive. {new_model}  (q = quit) Input newname. ")
+		if newshortname == "q" :
+			print("Finish!")
+			quit()
+			brake
 		else:
-			pass
+			print(f'{new_model} is "{newshortname}"')
+			if yes_no_input():
+				renamed_new_model_list.append(newshortname)	
+			else:
+				pass
+	'''	
+	create a zipped list of tuples from above lists
+	'''
+	
+	zippedlist =  list(zip(new_model_list, renamed_new_model_list))
+	
+	'''
+	create df
+	'''
+	df_by_list = pd.DataFrame(zippedlist, columns = ['model', 'renamed_model_name'])
+	added_sorted_model_df = pd.merge(sorted_model_df, df_by_list, on=('model', 'renamed_model_name'), how = 'outer').drop_duplicates(subset='model', keep='last')
+	#sorted_model_df = sorted_model_df.replace( new_model_list, renamed_new_model_list)
+	print("done!")
+	sorted_model_df = added_sorted_model_df.sort_values('renamed_model_name', na_position='first')
+else:
+	pass
 
 print("all model name has arrived")
 sorted_model_df.to_csv('./namebank.csv', header=False, index=False)
