@@ -67,6 +67,10 @@ else
 		elif [ 0 -eq `echo $(($er[i]))` ]; then
 			echo "error$daiban"
 			daiban=`expr 1 + $daiban`
+		elif [ $daiban -gt `echo $(($er[i]))` ]; then
+			echo "error$daiban"
+			print "台番重複"
+			exit
 		else
 			while [ $daiban -ne `echo $(($er[i]))` ]
 				do
